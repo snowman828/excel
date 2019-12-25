@@ -28,4 +28,5 @@ public interface ExcelMapper extends Mapper<Excel> {
             "</script>"
     })
     void insertBatch(@Param("excelList") List<Excel> excelList);
+
 }

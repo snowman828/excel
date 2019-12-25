@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * 根据作者所说：
@@ -25,7 +26,7 @@ public class DataListListener extends AnalysisEventListener<Excel> {
     /**
      * 每隔3000条存储数据库，然后清理list ，方便内存回收
      */
-    private static final int BATCH_COUNT = 3000;
+    private static final int BATCH_COUNT = 6000;
     private List<Excel> excelList = new ArrayList<>();
 
     /**
@@ -34,6 +35,11 @@ public class DataListListener extends AnalysisEventListener<Excel> {
     private ExcelMapper excelMapper;
     private JdbcTemplate jdbcTemplate;
 
+
+    /**
+     * 线程池
+     */
+    ForkJoinPool forkJoinPool = new ForkJoinPool(8);
 
     /**
      * 自动注入的是null，所以通过构造器初始化 excelMapper
@@ -64,7 +70,7 @@ public class DataListListener extends AnalysisEventListener<Excel> {
 
         // 达到BATCH_COUNT了，需要去存储一次数据库，防止数据几万条数据在内存，容易OOM
         if (excelList.size() >= BATCH_COUNT) {
-            saveExcelByJdbcTemplate();
+            saveExcelByJoinFork();
             // 存储完成清理 list
             excelList.clear();
         }
@@ -78,7 +84,7 @@ public class DataListListener extends AnalysisEventListener<Excel> {
      */
     @Override
     public void doAfterAllAnalysed(AnalysisContext analysisContext) {
-        saveExcelByJdbcTemplate();
+        saveExcelByJoinFork();
     }
 
     /**
@@ -95,5 +101,16 @@ public class DataListListener extends AnalysisEventListener<Excel> {
      */
     private void saveExcelByJdbcTemplate(){
         new ExcelJdbcTemplate(jdbcTemplate).insertBatchByJdbcTemplate(excelList);
+    }
+
+    /**
+     * 批量存储数据
+     *
+     * 依然通过JDBCTemplate
+     * 但是使用join/fork工具
+     */
+    private void saveExcelByJoinFork(){
+        InsertBatchTask insertBatchTask = new InsertBatchTask(jdbcTemplate, excelList);
+        forkJoinPool.invoke(insertBatchTask);
     }
 }
