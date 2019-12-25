@@ -62,7 +62,7 @@ CREATE TABLE `excel` (
 
 4. EasyExcel中情况
 
-   EasyExcel`解析出来的数据默认是`ArrayList`，因为`ArrayList`和`LinkedList`不是父子类关系，也就不可以强制转换，那就不费那个心了。
+   `EasyExcel`解析出来的数据默认是`ArrayList`，因为`ArrayList`和`LinkedList`不是父子类关系，也就不可以强制转换，那就不费那个心了。
 
 #### 2. 读取工作表
 
