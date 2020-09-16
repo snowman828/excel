@@ -21,7 +21,7 @@ public class InsertBatchTask extends RecursiveAction {
 
     private JdbcTemplate jdbcTemplate;
 
-    // 待插入数据
+    /** 待插入数据  */
     List<Excel> excelList;
 
     // 每一批次插入的数据

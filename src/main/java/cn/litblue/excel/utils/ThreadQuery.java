@@ -15,11 +15,13 @@ import java.util.concurrent.Callable;
 public class ThreadQuery implements Callable<List<Excel>> {
 
 
-    private ExcelJdbcTemplate excelJdbcTemplate;
+    private final ExcelJdbcTemplate excelJdbcTemplate;
 
-    private int start;//当前页数
+    /** 当前页数 */
+    private final int start;
 
-    private int rows;//每页查询多少条
+    /** 每页查询多少条 */
+    private final int rows;
 
 
     public ThreadQuery(JdbcTemplate jdbcTemplate, int start, int rows) {
